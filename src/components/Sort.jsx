@@ -1,26 +1,56 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef } from "react";
+import {useDispatch} from 'react-redux';
 
-function Sort() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeSort, setActiveSort] = useState(0);
-  const sorts = [
-    {
-      body: "популярности",
-    },
-    {
-      body: "цене",
-    },
-    {
-      body: "алфавиту",
-    },
-  ];
+export const sorts = [
+  {
+    value: 'rating',
+    body: "популярности",
+  },
+  {
+    value: '-rating',
+    body: "популярности ASC",
+  },
+  {
+    value: 'price',
+    body: "цене",
+  },
+  {
+    value: '-price',
+    body: "цене ASC",
+  },
+  {
+    value: 'title',
+    body: "алфавиту",
+  },
+  {
+    value: '-title',
+    body: "алфавиту ASC",
+  },
+];
 
-  const onSort = (num) => {
-    setActiveSort(num);
-    setIsOpen(false);
-  };
+function Sort({isOpen, setIsOpen, activeSort, onClickSort}) {
+  const dispatch = useDispatch();
+  const onClickOpen = () => {
+    dispatch(setIsOpen(!isOpen));
+  }
+  const sortRef = useRef();
+
+  useEffect(() => {
+    const handleClick = (event) => {
+      const path = event.path || (event.composedPath && event.composedPath())
+      if(!path.includes(sortRef.current)) {
+        dispatch(setIsOpen(false));
+      }
+    }
+    document.body.addEventListener('click', handleClick)
+
+    return () => {
+      document.body.removeEventListener('click', handleClick)
+    }
+  }, []);
+
   return (
-    <div className="sort">
+    <div className="sort" ref={sortRef}>
       <div className="sort__label">
         <svg
           width="10"
@@ -35,14 +65,14 @@ function Sort() {
           />
         </svg>
         <b>Сортировка по:</b>
-        <span onClick={() => setIsOpen(!isOpen)}>{sorts[activeSort].body}</span>
+        <span onClick={onClickOpen}>{activeSort.body}</span>
       </div>
       {isOpen && (
         <div className="sort__popup">
           <ul>
-            {sorts.map((sort, i) => (
-              <li className={activeSort === i && "active"} onClick={() => onSort(i)} key={i}>
-                {sort.body}
+            {sorts.map((obj, i) => (
+              <li className={activeSort.value === obj.value ? "active" : ''} onClick={() => onClickSort(obj)} key={i}>
+                {obj.body}
               </li>
             ))}
           </ul>

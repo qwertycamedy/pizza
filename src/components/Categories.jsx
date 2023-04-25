@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
-function Categories() {
+function Categories({value, onClickCategory}) {
   const categories = [
     {
       id: 0,
@@ -27,18 +27,14 @@ function Categories() {
       body: "Закрытые",
     },
   ];
-  const [cat, setCat] = useState(0);
 
-  const handleClick = id => {
-    setCat(id);
-  };
   return (
     <div className="categories">
       <ul>
         {categories.map((category) => (
           <li
-            className={category.id === cat ? "active" : ""}
-            onClick={() => handleClick(category.id)}
+            className={category.id === value ? "active" : ""}
+            onClick={() => onClickCategory(category.id)}
             key={category.id}
           >
             {category.body}

@@ -1,0 +1,18 @@
+.root {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.back {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  padding: 12px 0 14px;
+  border: 1px solid grey;
+  border-radius: 50px;
+  width: 230px;
+  margin: 0 auto;
+  font-weight: 600;
+  font-size: 18px;
+}
