@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef } from "react";
 import qs from "qs";
 import { useNavigate } from "react-router-dom";
 import Categories from "../components/Categories";
@@ -6,35 +6,34 @@ import PizzaBlock from "../components/PizzaBlock";
 import Sort, { sorts } from "../components/Sort";
 import Sceleton from "../components/PizzaBlock/Sceleton";
 import Pagination from "../components/Pagination";
-import axios from "axios";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../redux/store";
 import {
   setCurPage,
   setCategoryId,
-  setActiveSort,
-  setSortIsOpen,
   setFilters,
+  selectFilters,
 } from "../redux/slices/filtersSlice";
-import { fetchPizzas } from "../redux/slices/pizzasSlice";
+import { fetchPizzas, selectPizzas } from "../redux/slices/pizzasSlice";
 import NotFoundBlock from "../components/NotFoundBlock";
 
-function Home() {
+const Home: FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { items, loadStatus } = useSelector(state => state.pizzas);
-  const { curPage, categoryId, activeSort, sortIsOpen, searchValue } =
-    useSelector(state => state.filters);
+  const dispatch = useAppDispatch();
+  const { items, loadStatus } = useSelector(selectPizzas);
+  const { curPage, categoryId, activeSort, searchValue } =
+    useSelector(selectFilters);
   const isSearch = useRef(false);
   const isMounted = useRef(false);
 
   const getPizzas = async () => {
-
     const category = categoryId > 0 ? `category=${categoryId}` : "",
       sort = activeSort.value.replace("-", ""),
       order = activeSort.value.includes("-") ? "asc" : "desc",
       search = searchValue ? `&search=${searchValue}` : "";
 
     dispatch(
+      // @ts-ignore
       fetchPizzas({
         curPage,
         category,
@@ -73,45 +72,36 @@ function Home() {
     isMounted.current = true;
   }, [categoryId, activeSort, curPage]);
 
-  const onClickCategory = val => {
+  const onClickCategory = (val: number) => {
     dispatch(setCategoryId(val));
   };
-  const onClickSort = val => {
-    dispatch(setActiveSort(val));
-    dispatch(setSortIsOpen(!sortIsOpen));
-  };
-  const onChangePage = n => {
+  const onChangePage = (n: number) => {
     dispatch(setCurPage(n));
     window.scrollTo(0, 0);
   };
 
-  const pizzas = items.map((pizza, i) => <PizzaBlock pizza={pizza} key={i} />);
+  const pizzas = items.map((pizza: any, i: number) => (
+      <PizzaBlock pizza={pizza} key={i}/>
+  ));
   const sceletons = [...new Array(6)].map((_, i) => <Sceleton key={i} />);
 
   return (
     <>
       <div className="content__top">
         <Categories value={categoryId} onClickCategory={onClickCategory} />
-        <Sort
-          isOpen={sortIsOpen}
-          setIsOpen={setSortIsOpen}
-          activeSort={activeSort}
-          onClickSort={onClickSort}
-        />
+        <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
-      {
-        loadStatus === 'error' ? (
-          <NotFoundBlock />
-        ) : (
-          <div className="content__items">
-            {loadStatus === "loading" ? sceletons : pizzas}
-          </div>
-        )
-      }
+      {loadStatus === "error" ? (
+        <NotFoundBlock />
+      ) : (
+        <div className="content__items">
+          {loadStatus === "loading" ? sceletons : pizzas}
+        </div>
+      )}
       <Pagination curPage={curPage} onChangePage={onChangePage} />
     </>
   );
-}
+};
 
 export default Home;

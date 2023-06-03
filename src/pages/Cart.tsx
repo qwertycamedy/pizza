@@ -1,14 +1,14 @@
-import React from "react";
+import React, { FC } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate} from 'react-router-dom';
 import CartPizzaBlock from "../components/CartPizzaBlock";
 import NotFoundBlock from "../components/NotFoundBlock";
-import { clearItems } from "../redux/slices/cartSlice";
+import { clearItems, selectCart } from "../redux/slices/cartSlice";
 
-function Cart() {
+const Cart:FC = () => {
   const dispatch = useDispatch();
-  const { cartItems, total } = useSelector(state => state.cart);
-  const totalCount = cartItems.reduce((all, cur) => all + cur.count, 0);
+  const { cartItems, total } = useSelector(selectCart);
+  const totalCount = cartItems.reduce((all:number, cur:any) => all + cur.count, 0);
 
   const onClear = () => {
     if(window.confirm('Вы точно хотите очистить корзину?'))
@@ -97,7 +97,7 @@ function Cart() {
       {cartItems.length > 0 ? (
         <>
           <div className="content__items">
-            {cartItems.map(item => (
+            {cartItems.map((item:any) => (
               <CartPizzaBlock pizza={item} key={item.id} />
             ))}
           </div>

@@ -1,52 +1,70 @@
 import React, { useEffect, useRef } from "react";
-import {useDispatch} from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
+import { setActiveSort, setSortIsOpen } from "../redux/slices/filtersSlice";
+import { selectFilters } from "../redux/slices/filtersSlice";
 
-export const sorts = [
+type sortItem = {
+  value: string;
+  body: string;
+};
+
+type PopupClick = MouseEvent & {
+  path: Node[];
+}
+export const sorts: sortItem[] = [
   {
-    value: 'rating',
+    value: "rating",
     body: "популярности",
   },
   {
-    value: '-rating',
+    value: "-rating",
     body: "популярности ASC",
   },
   {
-    value: 'price',
+    value: "price",
     body: "цене",
   },
   {
-    value: '-price',
+    value: "-price",
     body: "цене ASC",
   },
   {
-    value: 'title',
+    value: "title",
     body: "алфавиту",
   },
   {
-    value: '-title',
+    value: "-title",
     body: "алфавиту ASC",
   },
 ];
 
-function Sort({isOpen, setIsOpen, activeSort, onClickSort}) {
+const Sort = () => {
   const dispatch = useDispatch();
+  const {activeSort, sortIsOpen} = useSelector(selectFilters);
+  const sortRef = useRef<HTMLDivElement>(null);
+
   const onClickOpen = () => {
-    dispatch(setIsOpen(!isOpen));
-  }
-  const sortRef = useRef();
+    dispatch(setSortIsOpen(!sortIsOpen));
+  };
+
+  const onClickSort = (val:sortItem) => {
+    dispatch(setActiveSort(val));
+    dispatch(setSortIsOpen(!sortIsOpen));
+  };
 
   useEffect(() => {
-    const handleClick = (event) => {
-      const path = event.path || (event.composedPath && event.composedPath())
-      if(!path.includes(sortRef.current)) {
-        dispatch(setIsOpen(false));
+    const handleClick = (event: MouseEvent) => {
+      const _event = event as PopupClick;
+      const path = _event.path || (_event.composedPath && _event.composedPath());
+      if (sortRef.current && !path.includes(sortRef.current)) {
+        dispatch(setSortIsOpen(false));
       }
-    }
-    document.body.addEventListener('click', handleClick)
+    };
+    document.body.addEventListener("click", handleClick);
 
     return () => {
-      document.body.removeEventListener('click', handleClick)
-    }
+      document.body.removeEventListener("click", handleClick);
+    };
   }, []);
 
   return (
@@ -67,11 +85,15 @@ function Sort({isOpen, setIsOpen, activeSort, onClickSort}) {
         <b>Сортировка по:</b>
         <span onClick={onClickOpen}>{activeSort.body}</span>
       </div>
-      {isOpen && (
+      {sortIsOpen && (
         <div className="sort__popup">
           <ul>
             {sorts.map((obj, i) => (
-              <li className={activeSort.value === obj.value ? "active" : ''} onClick={() => onClickSort(obj)} key={i}>
+              <li
+                className={activeSort.value === obj.value ? "active" : ""}
+                onClick={() => onClickSort(obj)}
+                key={i}
+              >
                 {obj.body}
               </li>
             ))}

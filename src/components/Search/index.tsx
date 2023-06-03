@@ -1,31 +1,31 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { FC, useCallback, useRef, useState } from "react";
 import debounce from "lodash.debounce";
 import cl from "./Search.module.scss";
 import trashImg from "../../assets/img/trash.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { setSearchValue } from "../../redux/slices/filtersSlice";
+import { selectFilters, setSearchValue } from "../../redux/slices/filtersSlice";
 
-function Search() {
-  const [value, setValue] = useState('');
+const Search: FC = () => {
+  const [value, setValue] = useState("");
   const dispatch = useDispatch();
-  const { searchValue } = useSelector(state => state.filters);
+  const { searchValue } = useSelector(selectFilters);
 
-  const searchInput = useRef();
+  const searchInput = useRef<HTMLInputElement>(null);
 
   const updateSearchValue = useCallback(
-    debounce(str => dispatch(setSearchValue(str)), 350),
+    debounce((str: string) => dispatch(setSearchValue(str)), 350),
     []
   );
 
-  const onChange = (e) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
-    updateSearchValue(e.target.value)
-  }
+    updateSearchValue(e.target.value);
+  };
 
   const onClear = () => {
-    setValue('');
+    setValue("");
     dispatch(setSearchValue(""));
-    searchInput.current.focus();
+    searchInput.current?.focus();
   };
 
   return (
@@ -48,6 +48,6 @@ function Search() {
       )}
     </label>
   );
-}
+};
 
 export default Search;

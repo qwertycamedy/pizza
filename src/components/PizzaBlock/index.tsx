@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addItem } from "../../redux/slices/cartSlice";
+import { addItem, selectCartItemById } from "../../redux/slices/cartSlice";
+import { Link } from "react-router-dom";
 
 const typeNames = ["тонкое", "традиционное"];
 const sizeValues = [26, 30, 40];
 
-function PizzaBlock({ pizza }) {
+type PizzaBlockProps = { pizza: any };
+
+const PizzaBlock: FC<PizzaBlockProps> = ({ pizza }) => {
   const dispatch = useDispatch();
-  const cartItem = useSelector(state =>
-    state.cart.cartItems.find(item => item.id === pizza.id)
-  );
+  const cartItem = useSelector(selectCartItemById(pizza.id));
   const [activeType, setActiveType] = useState(0);
   const [activeSize, setActiveSize] = useState(0);
 
@@ -26,15 +27,17 @@ function PizzaBlock({ pizza }) {
     };
 
     dispatch(addItem(newItem));
-  };
+  }; 
 
   return (
     <div className="pizza-block">
-      <img className="pizza-block__image" src={pizza.imageUrl} alt="Pizza" />
-      <h4 className="pizza-block__title">{pizza.title}</h4>
+      <Link to={`pizza/${pizza.id}`}>
+        <img className="pizza-block__image" src={pizza.imageUrl} alt="Pizza" />
+        <h4 className="pizza-block__title">{pizza.title}</h4>
+      </Link>
       <div className="pizza-block__selector">
         <ul>
-          {pizza.types.map((type, i) => (
+          {pizza.types.map((type: number, i: number) => (
             <li
               onClick={() => setActiveType(type)}
               className={activeType === i ? "active" : ""}
@@ -45,7 +48,7 @@ function PizzaBlock({ pizza }) {
           ))}
         </ul>
         <ul>
-          {pizza.sizes.map((size, i) => (
+          {pizza.sizes.map((size: number, i: number) => (
             <li
               onClick={() => setActiveSize(i)}
               className={activeSize === i ? "active" : ""}
@@ -75,13 +78,11 @@ function PizzaBlock({ pizza }) {
             />
           </svg>
           <span>Добавить</span>
-          {
-            addedCount > 0 && <i>{addedCount}</i>
-          }
+          {addedCount > 0 && <i>{addedCount}</i>}
         </button>
       </div>
     </div>
   );
-}
+};
 
 export default PizzaBlock;

@@ -312,3 +312,15 @@ body {
     }
   }
 }
+
+.button--circle__dis {
+  background: rgb(195, 195, 195);
+  border: rgb(195, 195, 195);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
